@@ -1,0 +1,50 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isRole(role) {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+    
+    function isCaregiverForPatient(patientUid) {
+      // This assumes a caregiver document has a `patientUid` field linking them to a patient.
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.patientUid == patientUid;
+    }
+
+    // Users can read and update their own profile.
+    match /users/{userId} {
+      allow read, update: if request.auth.uid == userId;
+      allow create: if request.auth.uid != null;
+    }
+
+    // Patients can read memories associated with them.
+    // Caregivers can perform all actions on memories for their assigned patient.
+    match /memories/{memoryId} {
+      allow read: if isRole('patient') && resource.data.patientUid == request.auth.uid;
+      allow read, update, delete: if isRole('caregiver') && isCaregiverForPatient(resource.data.patientUid);
+      allow create: if isRole('caregiver') && isCaregiverForPatient(request.resource.data.patientUid);
+    }
+    
+    // People profiles follow similar rules.
+    match /people/{personId} {
+       allow read: if isRole('patient') && resource.data.patientUid == request.auth.uid;
+       allow read, update, delete: if isRole('caregiver') && isCaregiverForPatient(resource.data.patientUid);
+       allow create: if isRole('caregiver') && isCaregiverForPatient(request.resource.data.patientUid);
+    }
+
+    // Events follow similar rules.
+    match /events/{eventId} {
+      allow read: if isRole('patient') && resource.data.patientUid == request.auth.uid;
+      allow read, update, delete: if isRole('caregiver') && isCaregiverForPatient(resource.data.patientUid);
+      allow create: if isRole('caregiver') && isCaregiverForPatient(request.resource.data.patientUid);
+    }
+
+    // Notes follow similar rules.
+    match /notes/{noteSessionId} {
+      allow read: if isRole('patient') && resource.data.patientUid == request.auth.uid;
+      allow read, update, delete: if isRole('caregiver') && isCaregiverForPatient(resource.data.patientUid);
+      allow create: if isRole('caregiver') && isCaregiverForPatient(request.resource.data.patientUid);
+    }
+  }
+}
