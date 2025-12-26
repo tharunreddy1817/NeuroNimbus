@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -9,11 +11,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ListFilter, Search } from 'lucide-react';
+import { ListFilter, LogIn, Search } from 'lucide-react';
 import { MemoryCard } from './components/memory-card';
-import { mockMemories, mockPeople, mockEvents } from '@/lib/mock-data';
+import { mockMemories } from '@/lib/mock-data';
+import Link from 'next/link';
+import { useUser } from '@/firebase';
 
 export default function MemoriesPage() {
+  const { user } = useUser();
+
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -41,6 +47,14 @@ export default function MemoriesPage() {
               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>
+          {!user && (
+            <Button asChild>
+              <Link href="/login">
+                <LogIn className="mr-2 h-4 w-4" />
+                Login
+              </Link>
+            </Button>
+          )}
         </div>
       </header>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

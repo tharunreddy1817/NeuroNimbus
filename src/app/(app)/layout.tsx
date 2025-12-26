@@ -1,7 +1,8 @@
+
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   SidebarProvider,
   Sidebar,
@@ -17,19 +18,23 @@ import {
 import {
   BookText,
   Calendar,
-  Home,
   LayoutGrid,
+  LoaderCircle,
   Settings,
   UploadCloud,
   Users,
+  Home,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { Separator } from '@/components/ui/separator';
 import { UserNav } from '@/components/user-nav';
 import { Button } from '@/components/ui/button';
 import type { ReactNode } from 'react';
+import { useUser } from '@/firebase';
+import { useEffect } from 'react';
 
 const navItems = [
+  { href: '/dashboard', icon: Home, label: 'Dashboard' },
   { href: '/memories', icon: LayoutGrid, label: 'Memories' },
   { href: '/people', icon: Users, label: 'People' },
   { href: '/events', icon: Calendar, label: 'Events' },
@@ -38,6 +43,25 @@ const navItems = [
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const { user, loading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/login');
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <LoaderCircle className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+  
+  if (!user) return null;
+
 
   return (
     <SidebarProvider>

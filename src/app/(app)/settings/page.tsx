@@ -1,12 +1,40 @@
+
+'use client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { mockCaregiver } from '@/lib/mock-data';
-import { Bot } from 'lucide-react';
+import { useUser, useFirestore } from '@/firebase';
+import { Bot, LoaderCircle } from 'lucide-react';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
 
 export default function SettingsPage() {
-    const user = mockCaregiver;
+    const { user, loading } = useUser();
+    const firestore = useFirestore();
+    const [userRole, setUserRole] = useState('');
+    const [userName, setUserName] = useState('');
+
+    useEffect(() => {
+        if (user && firestore) {
+            const userDocRef = doc(firestore, 'users', user.uid);
+            getDoc(userDocRef).then(docSnap => {
+                if (docSnap.exists()) {
+                    setUserRole(docSnap.data().role);
+                    setUserName(docSnap.data().displayName);
+                }
+            });
+        }
+    }, [user, firestore]);
+    
+    if (loading) {
+        return <div className="flex items-center justify-center h-full"><LoaderCircle className="h-8 w-8 animate-spin" /></div>
+    }
+
+    if (!user) {
+        return null;
+    }
+
   return (
     <div className="flex flex-col gap-8 max-w-2xl mx-auto">
       <header>
@@ -22,15 +50,15 @@ export default function SettingsPage() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Name</Label>
-            <Input id="name" defaultValue={user.displayName} />
+            <Input id="name" defaultValue={userName} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" defaultValue={user.email} disabled />
+            <Input id="email" type="email" defaultValue={user.email ?? ''} disabled />
           </div>
            <div className="space-y-2">
             <Label htmlFor="role">Role</Label>
-            <Input id="role" defaultValue={user.role} disabled />
+            <Input id="role" defaultValue={userRole} disabled />
           </div>
         </CardContent>
       </Card>
