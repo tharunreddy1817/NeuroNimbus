@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ListFilter, LogIn, Search } from 'lucide-react';
-import { MemoryCard } from './components/memory-card';
+import { MemoryCard } from '@/app/(app)/memories/components/memory-card';
 import { mockMemories } from '@/lib/mock-data';
 import Link from 'next/link';
 import { useUser } from '@/firebase';
@@ -51,7 +52,7 @@ export default function MemoriesPage() {
             <Button asChild>
               <Link href="/login">
                 <LogIn className="mr-2 h-4 w-4" />
-                Login
+                Caregiver Login
               </Link>
             </Button>
           )}

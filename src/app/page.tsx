@@ -1,6 +1,6 @@
+
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Logo } from '@/components/logo';
 import { useUser } from '@/firebase';
@@ -14,55 +14,54 @@ export default function RoleSelectionPage() {
   const router = useRouter();
 
   useEffect(() => {
+    // If the user is already logged in as a caregiver, redirect them to the dashboard.
     if (!loading && user) {
       router.replace('/dashboard');
     }
   }, [user, loading, router]);
 
-  if (loading || user) {
+  if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
+      <div className="flex h-screen items-center justify-center">
+        <LoaderCircle className="h-10 w-10 animate-spin" />
       </div>
     );
   }
 
+  // If user is already logged in, don't render the role selection.
+  if (user) {
+    return null;
+  }
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
-      <div className="mb-8">
-        <Logo />
-      </div>
-      <h1 className="mb-2 text-3xl font-bold tracking-tight font-headline">
-        Welcome to NeuroNimbus
-      </h1>
-      <p className="mb-8 text-lg text-muted-foreground">
-        Please select your role to continue.
+    <div className="flex min-h-screen flex-col items-center justify-center p-4">
+      <Logo className="mb-6" />
+
+      <h1 className="text-3xl font-bold mb-2">Welcome to NeuroNimbus</h1>
+      <p className="text-muted-foreground mb-8">
+        Please select your role to continue
       </p>
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 max-w-2xl w-full">
-        <Link href="/dashboard?role=patient" className="h-full">
-          <Card className="group flex h-full flex-col items-center justify-center p-8 text-center transition-all hover:bg-primary/5 hover:shadow-xl hover:-translate-y-1">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-xl w-full">
+        {/* Patient */}
+        <Link href="/memories">
+          <Card className="p-6 text-center hover:shadow-lg">
             <CardHeader>
-              <User className="h-16 w-16 mx-auto text-primary" />
-              <CardTitle className="text-2xl font-headline mt-4">
-                Patient
-              </CardTitle>
+              <User className="mx-auto h-14 w-14 text-primary" />
+              <CardTitle className="mt-4">Patient</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p>View memories and daily schedule.</p>
-            </CardContent>
+            <CardContent>View memories and reminders</CardContent>
           </Card>
         </Link>
-        <Link href="/login" className="h-full">
-          <Card className="group flex h-full flex-col items-center justify-center p-8 text-center transition-all hover:bg-primary/5 hover:shadow-xl hover:-translate-y-1">
+
+        {/* Caregiver */}
+        <Link href="/login">
+          <Card className="p-6 text-center hover:shadow-lg">
             <CardHeader>
-              <Users className="h-16 w-16 mx-auto text-primary" />
-              <CardTitle className="text-2xl font-headline mt-4">
-                Family / Caregiver
-              </CardTitle>
+              <Users className="mx-auto h-14 w-14 text-primary" />
+              <CardTitle className="mt-4">Caregiver</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p>Manage memories and patient profile.</p>
-            </CardContent>
+            <CardContent>Login to manage patient data</CardContent>
           </Card>
         </Link>
       </div>
