@@ -14,6 +14,20 @@ type FirebaseCtx = {
 const FirebaseContext = createContext<FirebaseCtx | null>(null);
 
 function getFirebaseConfig() {
+  const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+
+  if (!apiKey) {
+    // Return a dummy config if env vars are not set
+    return {
+      apiKey: "dummy",
+      authDomain: "dummy.firebaseapp.com",
+      projectId: "dummy",
+      storageBucket: "dummy.appspot.com",
+      messagingSenderId: "dummy",
+      appId: "dummy"
+    };
+  }
+
   return {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
     authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
@@ -26,6 +40,11 @@ function getFirebaseConfig() {
 
 function getClientApp() {
   const config = getFirebaseConfig();
+  if (config.apiKey === "dummy") {
+     const dummyApp = getApps().find(app => app.name === 'dummy-app');
+     if (dummyApp) return dummyApp;
+     return initializeApp(config, 'dummy-app');
+  }
   return getApps().length ? getApp() : initializeApp(config);
 }
 

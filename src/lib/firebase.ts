@@ -1,29 +1,37 @@
-
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-/**
- * Checks for an env var and returns it, or a placeholder if not found.
- * In a real production app, you'd want to throw an error if the env var is missing.
- */
-function getEnv(name: string, fallback = `missing-${name}`): string {
+console.log("FIREBASE RUNTIME CONFIG", {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  origin: typeof window !== "undefined" ? window.location.origin : "server",
+});
+
+
+function requireEnv(name: string): string {
   const value = process.env[name];
-  return value ?? fallback;
+  if (!value) {
+    throw new Error(
+      `❌ Missing environment variable: ${name}. ` +
+        `Add it in Firebase Studio Environment Variables (or .env.local) and restart Preview.`
+    );
+  }
+  return value;
 }
 
 const firebaseConfig = {
-  apiKey: getEnv('NEXT_PUBLIC_FIREBASE_API_KEY'),
-  authDomain: getEnv('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN'),
-  projectId: getEnv('NEXT_PUBLIC_FIREBASE_PROJECT_ID'),
-  storageBucket: getEnv('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET'),
-  messagingSenderId: getEnv('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID'),
-  appId: getEnv('NEXT_PUBLIC_FIREBASE_APP_ID'),
+  apiKey: requireEnv('NEXT_PUBLIC_FIREBASE_API_KEY'),
+  authDomain: requireEnv('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN'),
+  projectId: requireEnv('NEXT_PUBLIC_FIREBASE_PROJECT_ID'),
+  storageBucket: requireEnv('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET'),
+  messagingSenderId: requireEnv('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID'),
+  appId: requireEnv('NEXT_PUBLIC_FIREBASE_APP_ID'),
 };
 
-// Prevent Firebase from being initialized more than once
+// Prevent multiple initializations
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-// Export Firebase services as singletons
 export const auth = getAuth(app);
 export const db = getFirestore(app);

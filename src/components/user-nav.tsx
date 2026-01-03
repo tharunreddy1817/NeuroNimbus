@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -35,7 +34,7 @@ export function UserNav() {
     }
   };
 
-  if (!user || !isMounted) {
+  if (!isMounted || !user) {
     return null;
   }
 

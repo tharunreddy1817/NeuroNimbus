@@ -4,19 +4,10 @@ import {useEffect, useState} from 'react';
 import type {User} from 'firebase/auth';
 import {onAuthStateChanged} from 'firebase/auth';
 import { useAuth, useFirestore } from '..';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import type { User as UserProfile } from '@/lib/types';
 
-
-export type UseUserOptions = {
-  listen: boolean;
-};
-
-const DEFAULT_OPTIONS = {
-  listen: true,
-};
-
-export function useUser(options?: UseUserOptions) {
+export function useUser() {
   const auth = useAuth();
   const firestore = useFirestore();
   const [user, setUser] = useState<User | null>(null);
@@ -25,7 +16,7 @@ export function useUser(options?: UseUserOptions) {
   const [error, setError] = useState<Error | undefined>(undefined);
 
   useEffect(() => {
-    if (!auth) {
+    if (!auth || auth.app.options.apiKey === 'dummy') {
       setLoading(false);
       return;
     }
